@@ -84,14 +84,14 @@ app_license = "mit"
 
 # before_install = "location_based_series.install.before_install"
 # after_install = "location_based_series.install.after_install"
-after_install = "location_based_series.install.set_autoname_for_target_doctypes"
+# after_install = "location_based_series.install.set_autoname_for_target_doctypes"
 
 # Uninstallation
 # ------------
 
 # before_uninstall = "location_based_series.uninstall.before_uninstall"
 # after_uninstall = "location_based_series.uninstall.after_uninstall"
-before_uninstall = "location_based_series.uninstall.revert_autoname_for_target_doctypes"
+# before_uninstall = "location_based_series.uninstall.revert_autoname_for_target_doctypes"
 # Integration Setup
 # ------------------
 # To set up dependencies/integrations with other apps
@@ -140,27 +140,27 @@ before_uninstall = "location_based_series.uninstall.revert_autoname_for_target_d
 
 doc_events = {
     "Sales Invoice": {
-        "before_naming": "location_based_series.events.naming.custom_autoname",
+        "autoname": "location_based_series.events.naming.custom_autoname",
         "validate": "location_based_series.events.validation.validate_doc"
     },
     "Purchase Invoice": {
-        "before_naming": "location_based_series.events.naming.custom_autoname",
+        "autoname": "location_based_series.events.naming.custom_autoname",
         "validate": "location_based_series.events.validation.validate_doc"
     },
     "Sales Order": {
-        "before_naming": "location_based_series.events.naming.custom_autoname",
+        "autoname": "location_based_series.events.naming.custom_autoname",
         "validate": "location_based_series.events.validation.validate_doc"
     },
     "Purchase Order": {
-        "before_naming": "location_based_series.events.naming.custom_autoname",
+        "autoname": "location_based_series.events.naming.custom_autoname",
         "validate": "location_based_series.events.validation.validate_doc"
     },
     "Delivery Note": {
-        "before_naming": "location_based_series.events.naming.custom_autoname",
+        "autoname": "location_based_series.events.naming.custom_autoname",
         "validate": "location_based_series.events.validation.validate_doc"
     },
     "Purchase Receipt": {
-        "before_naming": "location_based_series.events.naming.custom_autoname",
+        "autoname": "location_based_series.events.naming.custom_autoname",
         "validate": "location_based_series.events.validation.validate_doc"
     }
 }

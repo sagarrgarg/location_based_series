@@ -1,3 +1,4 @@
+from frappe.contacts.doctype.address.address import get_address_display
 import frappe
 
 def validate_doc(doc, method):
@@ -21,6 +22,14 @@ def validate_doc(doc, method):
         # Auto-fill fields
         doc.location_code = loc.location_code
         doc.company_address = loc.linked_address
+        # ✅ Trigger company address display update
+        if doc.company_address:
+            doc.company_address_display = get_address_display(doc.company_address)
+
+            # ✅ Set company GSTIN
+            gstin = frappe.db.get_value("Address", doc.company_address, "gstin")
+            if gstin:
+                doc.company_gstin = gstin
     else:
         frappe.throw("Select Location before Saving")
     # STEP 3: Lock fields after first save
