@@ -45,7 +45,7 @@ def update_invoice(data):
                 item.price_list_rate = 0.00
                 item.is_free_item = 1
             else:
-                frappe.throw(_("Rate cannot be zero for item {0}").format(item.item_code))
+                frappe.throw(("Rate cannot be zero for item {0}").format(item.item_code))
         else:
             item.is_free_item = 0
         add_taxes_from_tax_template(item, invoice_doc)

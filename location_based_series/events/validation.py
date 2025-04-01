@@ -34,7 +34,9 @@ def validate_doc(doc, method):
         frappe.throw("Select Location before Saving")
     # STEP 3: Lock fields after first save
     if not doc.is_new():
+        if doc.company_address != loc.linked_address:
+            doc.company_address = loc.linked_address
         old = frappe.get_doc(doc.doctype, doc.name)
-        for field in ["location", "company_address", "is_return", "is_rate_adjustment"]:
+        for field in ["location", "is_return", "is_rate_adjustment"]:
             if hasattr(doc, field) and doc.get(field) != old.get(field):
                 frappe.throw(f"❌ Field '{field}' cannot be changed after saving.")
