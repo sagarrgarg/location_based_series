@@ -5,29 +5,29 @@ from frappe.utils import getdate
 def custom_autoname(doc, method):
     logger = frappe.logger("location_based_series")
 
-    location_code = doc.location_code
+    lbs_location_code = doc.lbs_location_code
     company = doc.company
     posting_date = getdate(getattr(doc, "posting_date", frappe.utils.nowdate()))
-    logger.info(f"[LBS] Posting Date: {posting_date}, Company: {company}, Location Code: {location_code}")
+    logger.info(f"[LBS] Posting Date: {posting_date}, Company: {company}, Location Code: {lbs_location_code}")
 
     # Get fiscal year code
     fiscal_year = get_fiscal_year_code(posting_date, company)
     logger.info(f"[LBS] Fiscal Year Code resolved to: {fiscal_year}")
 
-    # Determine doctype_code
-    doctype_code = get_doctype_code(doc)
+    # Determine lbs_doctype_code
+    lbs_doctype_code = get_lbs_doctype_code(doc)
 
-    logger.info(f"[LBS] Doctype: {doc.doctype}, Doctype Code: {doctype_code}")
-    doc.doctype_code = doctype_code
+    logger.info(f"[LBS] Doctype: {doc.doctype}, Doctype Code: {lbs_doctype_code}")
+    doc.lbs_doctype_code = lbs_doctype_code
 
     # Define series format per Doctype
     naming_templates = {
-        "Sales Invoice": "SI.{doctype_code}.{location_code}.{fiscal_year}.-.####",
-        "Purchase Invoice": "PI.{doctype_code}.{location_code}.{fiscal_year}.-.####",
-        "Sales Order": "SO.{location_code}.{fiscal_year}.-.####",
-        "Purchase Order": "PO.{location_code}.{fiscal_year}.-.####",
-        "Delivery Note": "DN.{doctype_code}.{location_code}.{fiscal_year}.-.####",
-        "Purchase Receipt": "PR.{doctype_code}.{location_code}.{fiscal_year}.-.####"
+        "Sales Invoice": "SI.{lbs_doctype_code}.{lbs_location_code}.{fiscal_year}.-.####",
+        "Purchase Invoice": "PI.{lbs_doctype_code}.{lbs_location_code}.{fiscal_year}.-.####",
+        "Sales Order": "SO.{lbs_location_code}.{fiscal_year}.-.####",
+        "Purchase Order": "PO.{lbs_location_code}.{fiscal_year}.-.####",
+        "Delivery Note": "DN.{lbs_doctype_code}.{lbs_location_code}.{fiscal_year}.-.####",
+        "Purchase Receipt": "PR.{lbs_doctype_code}.{lbs_location_code}.{fiscal_year}.-.####"
     }
 
     # Select template for current DocType
@@ -39,8 +39,8 @@ def custom_autoname(doc, method):
 
     # Replace placeholders
     series_pattern = template.format(
-        doctype_code=doctype_code,
-        location_code=location_code,
+        lbs_doctype_code=lbs_doctype_code,
+        lbs_location_code=lbs_location_code,
         fiscal_year=fiscal_year
     )
 
@@ -48,7 +48,7 @@ def custom_autoname(doc, method):
     doc.name = make_autoname(series_pattern, doc=doc)
 
 
-def get_doctype_code(doc):
+def get_lbs_doctype_code(doc):
     """Return doctype code based on flags like is_return, is_debit_note, etc."""
     if doc.doctype == "Sales Invoice":
         if doc.get("is_debit_note"):
