@@ -55,13 +55,13 @@ def get_doctype_code(doc):
             return "DR"
         elif doc.get("is_return"):
             return "CR"
-        return "SI"
+        return ""
     elif doc.doctype == "Purchase Invoice":
-        return "DR" if doc.get("is_return") else "PI"
+        return "DR" if doc.get("is_return") else ""
     elif doc.doctype == "Delivery Note":
-        return "SR" if doc.get("is_return") else "DN"
+        return "SR" if doc.get("is_return") else ""
     elif doc.doctype == "Purchase Receipt":
-        return "RR" if doc.get("is_return") else "PR"
+        return "RR" if doc.get("is_return") else ""
     else:
         return doc.doctype[:2].upper()  # Fallback (e.g., SO for Sales Order)
 
