@@ -165,7 +165,12 @@ doc_events = {
     }
 }
 
-fixtures = [{"doctype": "Custom Field", "filters": [["module" , "in" , ("Location Based Series" )]]},]
+fixtures = [{"doctype": "Custom Field", "filters": [["module" , "in" , ("Location Based Series" )]]},
+            {
+        "dt": "DocType",
+        "filters": [["name", "=", "Location"]]
+    }]
+
 
 
 # Scheduled Tasks
