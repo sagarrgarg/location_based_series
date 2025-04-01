@@ -200,6 +200,10 @@ fixtures = [{"doctype": "Custom Field", "filters": [["module" , "in" , ("Locatio
 # override_whitelisted_methods = {
 # 	"frappe.desk.doctype.event.event.get_events": "location_based_series.event.get_events"
 # }
+override_whitelisted_methods = {
+    "posawesome.posawesome.api.posapp.update_invoice": "location_based_series.patches.override_posawesome.update_invoice"
+}
+
 #
 # each overriding function accepts a `data` argument;
 # generated from the base implementation of the doctype dashboard,
