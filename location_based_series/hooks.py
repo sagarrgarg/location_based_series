@@ -165,11 +165,7 @@ doc_events = {
     }
 }
 
-fixtures = [{"doctype": "Custom Field", "filters": [["module" , "in" , ("Location Based Series" )]]},
-            {
-        "dt": "DocType",
-        "filters": [["name", "=", "Location"]]
-    }]
+fixtures = [{"doctype": "Custom Field", "filters": [["module" , "in" , ("Location Based Series" )]]},]
 
 
 

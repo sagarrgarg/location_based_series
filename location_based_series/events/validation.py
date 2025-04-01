@@ -14,13 +14,13 @@ def validate_doc(doc, method):
     if doc.location:
         loc = frappe.get_doc("Location", doc.location)
 
-        if not loc.location_code:
+        if not loc.lbs_location_code:
             frappe.throw("Selected Location must have a Location Code.")
         if not loc.linked_address:
             frappe.throw("Selected Location must have a Linked Address.")
 
         # Auto-fill fields
-        doc.location_code = loc.location_code
+        doc.lbs_location_code = loc.lbs_location_code
         doc.company_address = loc.linked_address
         # ✅ Trigger company address display update
         if doc.company_address:
