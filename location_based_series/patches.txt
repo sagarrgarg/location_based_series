@@ -4,3 +4,4 @@
 
 [post_model_sync]
 # Patches added in this section will be executed after doctypes are migrated
+location_based_series.patches.install_warehouse_filtering_scripts

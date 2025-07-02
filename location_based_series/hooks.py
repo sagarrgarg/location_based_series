@@ -83,13 +83,13 @@ app_license = "mit"
 # ------------
 
 # before_install = "location_based_series.install.before_install"
-# after_install = "location_based_series.install.after_install"
+after_install = "location_based_series.events.client_scripts.install_client_scripts"
 # after_install = "location_based_series.install.set_autoname_for_target_doctypes"
 
 # Uninstallation
 # ------------
 
-# before_uninstall = "location_based_series.uninstall.before_uninstall"
+before_uninstall = "location_based_series.events.client_scripts.uninstall_client_scripts"
 # after_uninstall = "location_based_series.uninstall.after_uninstall"
 # before_uninstall = "location_based_series.uninstall.revert_autoname_for_target_doctypes"
 # Integration Setup
