@@ -23,3 +23,28 @@ def set_autoname_for_target_doctypes():
             log.info(f"[✓] Set autoname format for {dt}: {series_format}")
         except Exception as e:
             log.error(f"[✗] Failed to update autoname for {dt}: {e}")
+
+def clear_existing_client_scripts():
+    """Remove any existing client scripts created by this app."""
+    target_doctypes = [
+        "Sales Invoice",
+        "Purchase Invoice", 
+        "Sales Order",
+        "Purchase Order",
+        "Delivery Note",
+        "Purchase Receipt"
+    ]
+    
+    log = frappe.logger("location_based_series")
+    
+    for doctype in target_doctypes:
+        script_name = f"Location Based Warehouse Filter - {doctype}"
+        
+        if frappe.db.exists("Client Script", {"name": script_name}):
+            try:
+                frappe.delete_doc("Client Script", script_name)
+                log.info(f"[✓] Removed existing client script for {doctype}")
+            except Exception as e:
+                log.error(f"[✗] Failed to remove client script for {doctype}: {e}")
+    
+    frappe.db.commit()

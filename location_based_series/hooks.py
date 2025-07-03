@@ -43,7 +43,14 @@ app_license = "mit"
 # page_js = {"page" : "public/js/file.js"}
 
 # include js in doctype views
-# doctype_js = {"doctype" : "public/js/doctype.js"}
+doctype_js = {
+    "Sales Invoice": "public/js/sales_invoice.js",
+    "Purchase Invoice": "public/js/purchase_invoice.js", 
+    "Sales Order": "public/js/sales_order.js",
+    "Purchase Order": "public/js/purchase_order.js",
+    "Delivery Note": "public/js/delivery_note.js",
+    "Purchase Receipt": "public/js/purchase_receipt.js"
+}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
@@ -83,13 +90,13 @@ app_license = "mit"
 # ------------
 
 # before_install = "location_based_series.install.before_install"
-after_install = "location_based_series.events.client_scripts.install_client_scripts"
+after_install = "location_based_series.install.clear_existing_client_scripts"
 # after_install = "location_based_series.install.set_autoname_for_target_doctypes"
 
 # Uninstallation
 # ------------
 
-before_uninstall = "location_based_series.events.client_scripts.uninstall_client_scripts"
+# before_uninstall = "location_based_series.events.client_scripts.uninstall_client_scripts"
 # after_uninstall = "location_based_series.uninstall.after_uninstall"
 # before_uninstall = "location_based_series.uninstall.revert_autoname_for_target_doctypes"
 # Integration Setup

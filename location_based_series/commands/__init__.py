@@ -1,1 +1,1 @@
-# Commands module for location_based_series 
+# Commands for location_based_series app 
