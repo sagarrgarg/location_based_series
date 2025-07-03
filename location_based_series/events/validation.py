@@ -88,7 +88,8 @@ def handle_warehouse_validation(doc):
         single_warehouse = valid_warehouses[0]
         
         # Auto-set document level warehouse fields if they exist and are empty
-        warehouse_fields = ['warehouse', 'set_warehouse', 'source_warehouse', 'target_warehouse']
+        # Exclude target_warehouse from autofill to prevent conflict with delivery warehouse
+        warehouse_fields = ['warehouse', 'set_warehouse', 'source_warehouse']
         for field in warehouse_fields:
             if hasattr(doc, field) and not getattr(doc, field, None):
                 setattr(doc, field, single_warehouse)
@@ -105,7 +106,8 @@ def auto_set_child_table_warehouses(doc, single_warehouse, valid_warehouses):
     
     # Common child table fields that contain warehouses
     child_table_fields = ['items', 'item_details', 'stock_entries']
-    warehouse_fields_in_child = ['warehouse', 's_warehouse', 't_warehouse', 'source_warehouse', 'target_warehouse']
+    # Exclude target_warehouse from autofill to prevent conflict with delivery warehouse
+    warehouse_fields_in_child = ['warehouse', 's_warehouse', 't_warehouse', 'source_warehouse']
     
     for table_field in child_table_fields:
         if hasattr(doc, table_field):
@@ -121,7 +123,8 @@ def validate_document_warehouses(doc, valid_warehouses):
     """Validate all warehouse fields in document and child tables."""
     
     # Validate document level warehouse fields
-    warehouse_fields = ['warehouse', 'set_warehouse', 'source_warehouse', 'target_warehouse']
+    # Exclude target_warehouse from validation as it's optional and can be different from location
+    warehouse_fields = ['warehouse', 'set_warehouse', 'source_warehouse']
     for field in warehouse_fields:
         if hasattr(doc, field):
             warehouse = getattr(doc, field, None)
@@ -130,7 +133,8 @@ def validate_document_warehouses(doc, valid_warehouses):
     
     # Validate warehouse fields in child tables
     child_table_fields = ['items', 'item_details', 'stock_entries']
-    warehouse_fields_in_child = ['warehouse', 's_warehouse', 't_warehouse', 'source_warehouse', 'target_warehouse']
+    # Exclude target_warehouse from validation as it's optional and can be different from location
+    warehouse_fields_in_child = ['warehouse', 's_warehouse', 't_warehouse', 'source_warehouse']
     
     for table_field in child_table_fields:
         if hasattr(doc, table_field):

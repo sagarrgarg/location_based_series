@@ -28,7 +28,8 @@ function set_warehouse_queries(frm) {{
     }}
     
     // Set query for document-level warehouse fields
-    const warehouse_fields = ['warehouse', 'set_warehouse', 'source_warehouse', 'target_warehouse'];
+    // Exclude target_warehouse from filtering as it's optional and can be different from location
+    const warehouse_fields = ['warehouse', 'set_warehouse', 'source_warehouse'];
     
     warehouse_fields.forEach(function(fieldname) {{
         if (frm.fields_dict[fieldname]) {{
@@ -45,7 +46,8 @@ function set_warehouse_queries(frm) {{
     
     // Set query for child table warehouse fields
     const child_tables = ['items', 'item_details', 'stock_entries'];
-    const child_warehouse_fields = ['warehouse', 's_warehouse', 't_warehouse', 'source_warehouse', 'target_warehouse'];
+    // Exclude target_warehouse from filtering as it's optional and can be different from location
+    const child_warehouse_fields = ['warehouse', 's_warehouse', 't_warehouse', 'source_warehouse'];
     
     child_tables.forEach(function(table_name) {{
         if (frm.fields_dict[table_name]) {{
@@ -67,7 +69,8 @@ function set_warehouse_queries(frm) {{
 
 function clear_warehouse_fields(frm) {{
     // Clear warehouse queries when no location is selected
-    const warehouse_fields = ['warehouse', 'set_warehouse', 'source_warehouse', 'target_warehouse'];
+    // Exclude target_warehouse from clearing as it's optional and can be different from location
+    const warehouse_fields = ['warehouse', 'set_warehouse', 'source_warehouse'];
     
     warehouse_fields.forEach(function(fieldname) {{
         if (frm.fields_dict[fieldname]) {{
@@ -83,7 +86,8 @@ function clear_warehouse_fields(frm) {{
     
     // Clear child table warehouse queries
     const child_tables = ['items', 'item_details', 'stock_entries'];
-    const child_warehouse_fields = ['warehouse', 's_warehouse', 't_warehouse', 'source_warehouse', 'target_warehouse'];
+    // Exclude target_warehouse from clearing as it's optional and can be different from location
+    const child_warehouse_fields = ['warehouse', 's_warehouse', 't_warehouse', 'source_warehouse'];
     
     child_tables.forEach(function(table_name) {{
         if (frm.fields_dict[table_name]) {{
