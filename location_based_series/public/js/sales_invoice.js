@@ -27,5 +27,5 @@ frappe.ui.form.on('Sales Invoice', {
                 window.locationUtils.setLocationQueries(frm, 'dispatch', 'dispatch_location');
             }
         }
-    }
+        }
 }); 

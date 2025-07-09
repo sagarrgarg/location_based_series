@@ -27,5 +27,5 @@ frappe.ui.form.on('Sales Order', {
                 window.locationUtils.setLocationQueries(frm, 'dispatch', 'dispatch_location');
             }
         }
-    }
+        }
 }); 

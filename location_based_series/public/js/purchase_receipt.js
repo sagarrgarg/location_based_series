@@ -27,5 +27,5 @@ frappe.ui.form.on('Purchase Receipt', {
                 window.locationUtils.setLocationQueries(frm, 'shipping', 'shipping_location');
             }
         }
-    }
+        }
 }); 

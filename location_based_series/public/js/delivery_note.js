@@ -27,5 +27,5 @@ frappe.ui.form.on('Delivery Note', {
                 window.locationUtils.setLocationQueries(frm, 'dispatch', 'dispatch_location');
             }
         }
-    }
+        }
 }); 

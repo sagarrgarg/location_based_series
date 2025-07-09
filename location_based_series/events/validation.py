@@ -1,7 +1,7 @@
 from frappe.contacts.doctype.address.address import get_address_display
 import frappe
 from location_based_series.utils import (
-    get_filtered_warehouses_for_location,
+    get_filtered_warehouses_for_location, 
     get_filtered_warehouses_for_shipping_location,
     get_filtered_addresses_for_shipping_location,
     get_filtered_warehouses_for_dispatch_location,
