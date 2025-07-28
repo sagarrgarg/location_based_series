@@ -49,26 +49,67 @@ def _get_location_based_query_result(location_type, location_name, doctype, txt,
     if not frappe.db.exists(result_doctype, linked_value):
         return []
     
-    # Base filters
-    filters_dict = {
-        "name": linked_value
-    }
-    
-    # Add text search if provided
-    if txt:
-        if txt.lower() not in linked_value.lower():
+    # Handle warehouse filtering with group warehouse support
+    if doctype == "Warehouse":
+        # Get warehouse info to check if it's a group warehouse
+        warehouse_info = frappe.db.get_value("Warehouse", linked_value, 
+                                            ["name", "is_group", "disabled"], as_dict=True)
+        
+        if not warehouse_info or warehouse_info.disabled:
             return []
-    
-    # Get result using frappe.get_all
-    result = frappe.get_all(result_doctype,
-                           filters=filters_dict,
-                           fields=result_fields,
-                           order_by="name",
-                           limit_start=start,
-                           limit_page_length=page_len,
-                           as_list=True)
-    
-    return result
+        
+        if warehouse_info.is_group:
+            # Get all non-group descendants
+            try:
+                descendant_warehouses = get_descendants_of("Warehouse", linked_value, 
+                                                         ignore_permissions=True)
+                if descendant_warehouses:
+                    # Get non-group descendants that are not disabled
+                    non_group_descendants = frappe.get_all("Warehouse", 
+                                                          filters={
+                                                              "name": ["in", descendant_warehouses],
+                                                              "is_group": 0,
+                                                              "disabled": 0
+                                                          },
+                                                          fields=result_fields,
+                                                          order_by="name")
+                    
+                    # Filter by search text if provided
+                    if txt:
+                        filtered_results = []
+                        for warehouse in non_group_descendants:
+                            if (txt.lower() in warehouse.name.lower() or 
+                                txt.lower() in warehouse.warehouse_name.lower()):
+                                filtered_results.append([warehouse.name, warehouse.warehouse_name])
+                        return filtered_results[start:start + page_len]
+                    else:
+                        return [[warehouse.name, warehouse.warehouse_name] 
+                               for warehouse in non_group_descendants[start:start + page_len]]
+            except Exception as e:
+                frappe.logger().error(f"Error getting descendants for warehouse {linked_value}: {str(e)}")
+                return []
+        else:
+            # Non-group warehouse - return only this warehouse
+            warehouse_name = frappe.db.get_value("Warehouse", linked_value, "warehouse_name")
+            
+            # Check if search text matches
+            if txt:
+                if (txt.lower() not in linked_value.lower() and 
+                    txt.lower() not in warehouse_name.lower()):
+                    return []
+            
+            return [[linked_value, warehouse_name]]
+    else:
+        # For Address doctype, return the linked address
+        address_title = frappe.db.get_value("Address", linked_value, "address_title")
+        
+        # Check if search text matches
+        if txt:
+            if (txt.lower() not in linked_value.lower() and 
+                txt.lower() not in address_title.lower()):
+                return []
+        
+        return [[linked_value, address_title]]
 
 
 def _get_filtered_warehouses_for_location_generic(location):
