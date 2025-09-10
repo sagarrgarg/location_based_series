@@ -18,13 +18,13 @@ frappe.ui.form.on('Purchase Invoice', {
     },
     
     refresh: function(frm) {
-        // Set warehouse queries on form load
+        // Set warehouse queries on form load with proper priority
         if (window.locationUtils) {
-            if (frm.doc.location) {
-                window.locationUtils.setLocationQueries(frm, 'main', 'location');
-            }
+            // First check for shipping location
             if (frm.doc.shipping_location) {
                 window.locationUtils.setLocationQueries(frm, 'shipping', 'shipping_location');
+            } else if (frm.doc.location) {
+                window.locationUtils.setLocationQueries(frm, 'main', 'location');
             }
         }
         }

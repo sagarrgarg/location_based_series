@@ -3,6 +3,15 @@
 
 // Generic function to set warehouse queries based on location type
 function setLocationQueries(frm, locationType, locationField) {
+    // First check if there's a shipping/dispatch location already set
+    if (locationType === 'main') {
+        if (frm.doc.shipping_location) {
+            return setLocationQueries(frm, 'shipping', 'shipping_location');
+        } else if (frm.doc.dispatch_location) {
+            return setLocationQueries(frm, 'dispatch', 'dispatch_location');
+        }
+    }
+
     if (!frm.doc[locationField]) return;
     
     const queryMethod = locationType === 'dispatch' 
@@ -141,13 +150,23 @@ function handleLocationChange(frm, locationType, locationField) {
         // Auto-fill address since it's one-to-one relationship
         autoFillAddress(frm, locationType, locationField);
     } else {
-        // If location is cleared, revert to main location filtering
+        // If location is cleared, check priority and apply appropriate filtering
         clearLocationFields(frm, locationType);
         // Reset warehouse fields to null
         resetWarehouseFields(frm);
-        // Re-apply main location filtering if location exists
-        if (frm.doc.location) {
-            setLocationQueries(frm, 'main', 'location');
+        
+        // Check priority of remaining locations
+        if (locationType === 'main') {
+            if (frm.doc.shipping_location) {
+                setLocationQueries(frm, 'shipping', 'shipping_location');
+            } else if (frm.doc.dispatch_location) {
+                setLocationQueries(frm, 'dispatch', 'dispatch_location');
+            }
+        } else if (frm.doc.location) {
+            // Only apply main location if no shipping/dispatch location exists
+            if (!frm.doc.shipping_location && !frm.doc.dispatch_location) {
+                setLocationQueries(frm, 'main', 'location');
+            }
         }
     }
 }
