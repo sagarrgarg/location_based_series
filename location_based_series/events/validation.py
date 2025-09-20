@@ -40,6 +40,7 @@ def validate_doc(doc, method):
         # Handle based on document type
         purchase_doctypes = ["Purchase Invoice", "Purchase Receipt", "Purchase Order"]
         if doc.doctype in purchase_doctypes:
+            # Only set billing address for purchase documents, shipping address should be manual
             doc.billing_address = loc.linked_address
             doc.billing_address_display = get_address_display(loc.linked_address)
 
@@ -47,6 +48,11 @@ def validate_doc(doc, method):
             gstin = frappe.db.get_value("Address", loc.linked_address, "gstin")
             if gstin:
                 doc.company_gstin = gstin
+
+            # Clear any auto-filled shipping address if it matches billing address
+            if hasattr(doc, 'shipping_address') and doc.shipping_address == loc.linked_address:
+                doc.shipping_address = ''
+                doc.shipping_address_display = ''
         else:
             doc.company_address = loc.linked_address
             doc.company_address_display = get_address_display(loc.linked_address)
