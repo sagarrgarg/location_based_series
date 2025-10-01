@@ -13,7 +13,8 @@ from location_based_series.utils import (
     validate_warehouse_against_shipping_location,
     validate_shipping_address_against_shipping_location,
     validate_warehouse_against_dispatch_location,
-    validate_dispatch_address_against_dispatch_location
+    validate_dispatch_address_against_dispatch_location,
+    set_place_of_supply_for_purchase_doc
 )
 
 def validate_doc(doc, method):
@@ -100,7 +101,11 @@ def validate_doc(doc, method):
     # Use shipping location for warehouse filtering if available, otherwise use regular location
     handle_combined_location_validation(doc)
 
-    # STEP 5: Lock fields after first save
+    # STEP 5: Set Place of Supply for Purchase documents
+    # This sets place_of_supply based on location's linked address (billing address)
+    set_place_of_supply_for_purchase_doc(doc)
+
+    # STEP 6: Lock fields after first save
     if not doc.is_new():
         old = frappe.get_doc(doc.doctype, doc.name)
 

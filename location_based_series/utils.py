@@ -1,6 +1,184 @@
 import frappe
 from frappe.utils.nestedset import get_descendants_of
 
+# Comprehensive state mapping for Indian states and territories
+# This includes all states, union territories, and special territories
+STATE_NUMBERS = {
+    "Andaman and Nicobar Islands": "35",
+    "Andhra Pradesh": "37", 
+    "Arunachal Pradesh": "12",
+    "Assam": "18",
+    "Bihar": "10",
+    "Chandigarh": "04",
+    "Chhattisgarh": "22",
+    "Dadra and Nagar Haveli and Daman and Diu": "26",
+    "Delhi": "07",
+    "Goa": "30",
+    "Gujarat": "24",
+    "Haryana": "06",
+    "Himachal Pradesh": "02",
+    "Jammu and Kashmir": "01",
+    "Jharkhand": "20",
+    "Karnataka": "29",
+    "Kerala": "32",
+    "Ladakh": "38",
+    "Lakshadweep Islands": "31",
+    "Madhya Pradesh": "23",
+    "Maharashtra": "27",
+    "Manipur": "14",
+    "Meghalaya": "17",
+    "Mizoram": "15",
+    "Nagaland": "13",
+    "Odisha": "21",
+    "Other Countries": "96",
+    "Other Territory": "97",
+    "Puducherry": "34",
+    "Punjab": "03",
+    "Rajasthan": "08",
+    "Sikkim": "11",
+    "Tamil Nadu": "33",
+    "Telangana": "36",
+    "Tripura": "16",
+    "Uttar Pradesh": "09",
+    "Uttarakhand": "05",
+    "West Bengal": "19",
+}
+
+# Reverse mapping for state code to state name
+STATE_CODE_TO_NAME = {v: k for k, v in STATE_NUMBERS.items()}
+
+
+def get_state_from_gstin(gstin):
+    """
+    Extract state code from GSTIN (first 2 digits).
+    Returns state code and state name.
+    """
+    if not gstin or len(gstin) < 2:
+        return None, None
+    
+    state_code = gstin[:2]
+    state_name = STATE_CODE_TO_NAME.get(state_code)
+    return state_code, state_name
+
+
+def get_place_of_supply_from_address(address_name):
+    """
+    Get place of supply from address.
+    Returns format: "state_code-state_name" (e.g., "07-Delhi")
+    """
+    if not address_name:
+        return None
+    
+    # Get address details
+    address_details = frappe.db.get_value("Address", address_name, 
+        ["gstin", "gst_state_number", "gst_state", "state", "country"], as_dict=True)
+    
+    if not address_details:
+        return None
+    
+    # For non-Indian addresses, return Other Countries
+    if address_details.country != "India":
+        return "96-Other Countries"
+    
+    # If GSTIN is available, use first 2 digits
+    if address_details.gstin:
+        state_code, state_name = get_state_from_gstin(address_details.gstin)
+        if state_code and state_name:
+            return f"{state_code}-{state_name}"
+    
+    # If GST state number is available, use it
+    if address_details.gst_state_number:
+        state_name = STATE_CODE_TO_NAME.get(address_details.gst_state_number)
+        if state_name:
+            return f"{address_details.gst_state_number}-{state_name}"
+    
+    # If GST state is available, find its code
+    if address_details.gst_state:
+        state_code = STATE_NUMBERS.get(address_details.gst_state)
+        if state_code:
+            return f"{state_code}-{address_details.gst_state}"
+    
+    # If regular state is available, find its code
+    if address_details.state:
+        state_code = STATE_NUMBERS.get(address_details.state)
+        if state_code:
+            return f"{state_code}-{address_details.state}"
+    
+    return None
+
+
+def set_place_of_supply_for_purchase_doc(doc):
+    """
+    Set place of supply for purchase documents (PI, PO, PR) based on location's linked address.
+    This is called during document validation.
+    """
+    purchase_doctypes = ["Purchase Invoice", "Purchase Order", "Purchase Receipt"]
+    
+    if doc.doctype not in purchase_doctypes:
+        return
+    
+    # Get the billing address (company address for purchase documents)
+    billing_address = None
+    
+    if hasattr(doc, 'billing_address') and doc.billing_address:
+        billing_address = doc.billing_address
+    elif hasattr(doc, 'company_address') and doc.company_address:
+        billing_address = doc.company_address
+    
+    if not billing_address:
+        return
+    
+    # Get place of supply from billing address
+    place_of_supply = get_place_of_supply_from_address(billing_address)
+    
+    if place_of_supply and hasattr(doc, 'place_of_supply'):
+        doc.place_of_supply = place_of_supply
+        frappe.logger("location_based_series").info(f"[POS] Set place_of_supply to '{place_of_supply}' for {doc.doctype} {doc.name}")
+
+
+@frappe.whitelist()
+def test_place_of_supply_logic():
+    """
+    Test function to demonstrate place of supply logic.
+    This can be called from console to test the functionality.
+    """
+    test_cases = [
+        {
+            "description": "GSTIN with state code 07 (Delhi)",
+            "gstin": "07ABCDE1234F1Z5",
+            "expected": "07-Delhi"
+        },
+        {
+            "description": "GSTIN with state code 27 (Maharashtra)", 
+            "gstin": "27ABCDE1234F1Z5",
+            "expected": "27-Maharashtra"
+        },
+        {
+            "description": "Non-Indian address",
+            "country": "United States",
+            "expected": "96-Other Countries"
+        }
+    ]
+    
+    results = []
+    for case in test_cases:
+        if "gstin" in case:
+            state_code, state_name = get_state_from_gstin(case["gstin"])
+            result = f"{state_code}-{state_name}" if state_code and state_name else None
+        elif "country" in case:
+            result = "96-Other Countries" if case["country"] != "India" else None
+        else:
+            result = None
+            
+        results.append({
+            "description": case["description"],
+            "expected": case["expected"],
+            "actual": result,
+            "match": result == case["expected"]
+        })
+    
+    return results
+
 
 def _get_location_based_query_result(location_type, location_name, doctype, txt, searchfield, start, page_len, filters, **kwargs):
     """
