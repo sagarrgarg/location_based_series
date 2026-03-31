@@ -1,7 +1,7 @@
 from frappe.contacts.doctype.address.address import get_address_display
 import frappe
 from location_based_series.utils import (
-    get_filtered_warehouses_for_location, 
+    get_filtered_warehouses_for_location,
     get_filtered_warehouses_for_shipping_location,
     get_filtered_addresses_for_shipping_location,
     get_filtered_warehouses_for_dispatch_location,
@@ -14,7 +14,8 @@ from location_based_series.utils import (
     validate_shipping_address_against_shipping_location,
     validate_warehouse_against_dispatch_location,
     validate_dispatch_address_against_dispatch_location,
-    set_place_of_supply_for_purchase_doc
+    set_place_of_supply_for_purchase_doc,
+    get_place_of_supply_from_address,
 )
 
 def validate_doc(doc, method):
@@ -140,7 +141,6 @@ def validate_doc(doc, method):
         for field in ["location", "is_return", "is_rate_adjustment"]:
             if hasattr(doc, field) and doc.get(field) != old.get(field):
                 frappe.throw(f"❌ Field '{field}' cannot be changed after saving.")
-
 
 def handle_warehouse_validation(doc):
     """

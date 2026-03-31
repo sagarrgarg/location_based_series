@@ -4,12 +4,12 @@ import frappe
 
 def set_autoname_for_target_doctypes():
     doctype_naming_map = {
-        "Sales Invoice": "SI.{doctype_code}.{location_code}.FY.-.####",
-        "Purchase Invoice": "PI.{doctype_code}.{location_code}.FY.-.####",
+        "Sales Invoice": "SI|CN.{location_code}.FY.-.####",
+        "Purchase Invoice": "PI|DN.{location_code}.FY.-.####",
         "Sales Order": "SO.{location_code}.FY.-.####",
         "Purchase Order": "PO.{location_code}.FY.-.####",
-        "Delivery Note": "DN.{doctype_code}.{location_code}.FY.-.####",
-        "Purchase Receipt": "PR.{doctype_code}.{location_code}.FY.-.####"
+        "Delivery Note": "DN.{location_code}.FY.-.####",
+        "Purchase Receipt": "PR.{location_code}.FY.-.####",
     }
 
     log = frappe.logger("location_based_series")
