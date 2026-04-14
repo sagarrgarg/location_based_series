@@ -37,25 +37,25 @@ def _get_naming_template(doc):
     """Return the full naming template based on doctype and document flags.
 
     Prefix mapping:
-        SI = Sales Invoice (regular)
-        CN = Credit Note  (Sales Invoice return)
-        PI = Purchase Invoice (regular)
-        DN = Debit Note   (Purchase Invoice return)
-        SO = Sales Order
-        PO = Purchase Order
-        DN = Delivery Note
-        PR = Purchase Receipt
+        SI  = Sales Invoice (regular)
+        CDN = Credit Note  (Sales Invoice return)
+        PI  = Purchase Invoice (regular)
+        DBN = Debit Note   (Purchase Invoice return)
+        SO  = Sales Order
+        PO  = Purchase Order
+        DN  = Delivery Note
+        PR  = Purchase Receipt
     """
     if doc.doctype == "Sales Invoice":
         if doc.get("is_debit_note"):
             return "SI.DR.{lbs_location_code}.{fiscal_year}.-.####"
         if doc.get("is_return"):
-            return "CN.{lbs_location_code}.{fiscal_year}.-.####"
+            return "CDN.{lbs_location_code}.{fiscal_year}.-.####"
         return "SI.{lbs_location_code}.{fiscal_year}.-.####"
 
     if doc.doctype == "Purchase Invoice":
         if doc.get("is_return"):
-            return "DN.{lbs_location_code}.{fiscal_year}.-.####"
+            return "DBN.{lbs_location_code}.{fiscal_year}.-.####"
         return "PI.{lbs_location_code}.{fiscal_year}.-.####"
 
     if doc.doctype == "Delivery Note":

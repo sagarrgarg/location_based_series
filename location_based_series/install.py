@@ -4,8 +4,8 @@ import frappe
 
 def set_autoname_for_target_doctypes():
     doctype_naming_map = {
-        "Sales Invoice": "SI|CN.{location_code}.FY.-.####",
-        "Purchase Invoice": "PI|DN.{location_code}.FY.-.####",
+        "Sales Invoice": "SI|CDN.{location_code}.FY.-.####",
+        "Purchase Invoice": "PI|DBN.{location_code}.FY.-.####",
         "Sales Order": "SO.{location_code}.FY.-.####",
         "Purchase Order": "PO.{location_code}.FY.-.####",
         "Delivery Note": "DN.{location_code}.FY.-.####",

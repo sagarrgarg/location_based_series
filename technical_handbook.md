@@ -80,3 +80,24 @@ Each `.`-separated segment is concatenated by Frappe's `make_autoname`. The `-` 
 - `install.py` — reference format strings updated
 
 **Note:** Purchase Invoice returns (DN prefix) and regular Delivery Notes both start with "DN". They share the `tabSeries` counter for the same location+FY combination but live in separate DocType tables, so no name collision occurs.
+
+### 2026-04-11 — Fix DN collision: rename Debit Note → DBN, Credit Note → CDN
+
+**What changed:**
+- Purchase Invoice returns (Debit Notes): prefix changed from `DN` → `DBN`
+- Sales Invoice returns (Credit Notes): prefix changed from `CN` → `CDN`
+- **Delivery Note unchanged** — continues to use `DN` prefix.
+- New patch `seed_dbn_cdn_counters` copies each `DN-{loc}-{fy}-` counter value into a new `DBN-{loc}-{fy}-` row, and each `CN-{loc}-{fy}-` into a new `CDN-{loc}-{fy}-` row. DBN/CDN numbering therefore continues from the current DN/CN values instead of resetting.
+
+**Why:**
+- After the 2026-04-01 rename, `DN` was ambiguous — it meant both Delivery Note and Debit Note. Even though the two doctypes live in separate tables, humans reading document names (reports, statements, audit trails) could not distinguish them. `DBN` (Debit Note) and `CDN` (Credit Note) are unambiguous while keeping `DN` for Delivery Note intact.
+
+**Impacted modules:**
+- `events/naming.py` — line 53 `CN` → `CDN`, line 58 `DN` → `DBN`, Delivery Note line 64 unchanged
+- `install.py` — reference `doctype_naming_map` updated
+- `patches/seed_dbn_cdn_counters.py` — new migration patch
+- `patches.txt` — patch registered
+
+**Existing records:** Debit Notes already named `DN-…` and Credit Notes already named `CN-…` are **not renamed**. They remain under their original names. Only new records created after migration use the `DBN`/`CDN` prefixes.
+
+**Note:** Delivery Note and Debit Note now have independent `tabSeries` rows (`DN-…` and `DBN-…`). They may eventually produce the same trailing number with different prefixes — this is expected and does not cause any collision because they live in separate DocType tables and use distinct prefixes.
