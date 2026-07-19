@@ -251,9 +251,37 @@ def auto_set_child_table_warehouses(doc, single_warehouse, valid_warehouses):
                             setattr(row, wh_field, single_warehouse)
 
 
+def _should_skip_warehouse_validation(doc):
+    """
+    Warehouse is irrelevant when the document does not move stock — e.g. a
+    Purchase/Sales Invoice with 'Update Stock' unchecked. In that case the
+    warehouse on item rows is only a leftover default (Item Default warehouse)
+    and should not be constrained to the location.
+    """
+    if hasattr(doc, 'update_stock'):
+        return not doc.update_stock
+    return False
+
+
+def _is_non_stock_item(row):
+    """
+    Expense / non-stock items (is_stock_item = 0) carry a default warehouse but
+    never produce a stock ledger entry, so their warehouse should not be
+    validated against the location.
+    """
+    item_code = getattr(row, 'item_code', None)
+    if not item_code:
+        return False
+    return not frappe.get_cached_value("Item", item_code, "is_stock_item")
+
+
 def validate_document_warehouses(doc, valid_warehouses):
     """Validate all warehouse fields in document and child tables."""
-    
+
+    # Skip entirely when the document does not update stock
+    if _should_skip_warehouse_validation(doc):
+        return
+
     # Validate document level warehouse fields
     # Exclude target_warehouse from validation as it's optional and can be different from location
     warehouse_fields = ['warehouse', 'set_warehouse', 'source_warehouse']
@@ -273,6 +301,9 @@ def validate_document_warehouses(doc, valid_warehouses):
             child_table = getattr(doc, table_field, [])
             if child_table:  # Only process if table has rows
                 for idx, row in enumerate(child_table):
+                    # Skip expense / non-stock item rows — their warehouse never moves stock
+                    if _is_non_stock_item(row):
+                        continue
                     for wh_field in warehouse_fields_in_child:
                         if hasattr(row, wh_field):
                             warehouse = getattr(row, wh_field, None)
@@ -282,7 +313,11 @@ def validate_document_warehouses(doc, valid_warehouses):
 
 def validate_document_warehouses_for_shipping_location(doc, valid_warehouses):
     """Validate all warehouse fields in document and child tables against shipping location."""
-    
+
+    # Skip entirely when the document does not update stock
+    if _should_skip_warehouse_validation(doc):
+        return
+
     # Validate document level warehouse fields
     # Exclude target_warehouse from validation as it's optional and can be different from shipping location
     warehouse_fields = ['warehouse', 'set_warehouse', 'source_warehouse']
@@ -302,6 +337,9 @@ def validate_document_warehouses_for_shipping_location(doc, valid_warehouses):
             child_table = getattr(doc, table_field, [])
             if child_table:  # Only process if table has rows
                 for idx, row in enumerate(child_table):
+                    # Skip expense / non-stock item rows — their warehouse never moves stock
+                    if _is_non_stock_item(row):
+                        continue
                     for wh_field in warehouse_fields_in_child:
                         if hasattr(row, wh_field):
                             warehouse = getattr(row, wh_field, None)
@@ -397,7 +435,11 @@ def handle_dispatch_address_validation(doc):
 
 def validate_document_warehouses_for_dispatch_location(doc, valid_warehouses):
     """Validate all warehouse fields in document and child tables against dispatch location."""
-    
+
+    # Skip entirely when the document does not update stock
+    if _should_skip_warehouse_validation(doc):
+        return
+
     # Validate document level warehouse fields
     # Exclude target_warehouse from validation as it's optional and can be different from dispatch location
     warehouse_fields = ['warehouse', 'set_warehouse', 'source_warehouse']
@@ -417,6 +459,9 @@ def validate_document_warehouses_for_dispatch_location(doc, valid_warehouses):
             child_table = getattr(doc, table_field, [])
             if child_table:  # Only process if table has rows
                 for idx, row in enumerate(child_table):
+                    # Skip expense / non-stock item rows — their warehouse never moves stock
+                    if _is_non_stock_item(row):
+                        continue
                     for wh_field in warehouse_fields_in_child:
                         if hasattr(row, wh_field):
                             warehouse = getattr(row, wh_field, None)
